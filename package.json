@@ -1,0 +1,20 @@
+{
+  "name": "game",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@seregpie/three.text-sprite": "^3.2.0",
+    "3d-core-raub": "^4.3.0",
+    "canvas": "^3.0.1",
+    "glfw-raub": "^5.7.0",
+    "three": "^0.172.0",
+    "webgl-raub": "^4.2.0"
+  }
+}
