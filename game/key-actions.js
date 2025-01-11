@@ -7,6 +7,7 @@ const activated = {};
 /** @param {Vector3} vec */
 function walkDir(vec) {
     return () => {
+        if (states.paused) return;
         states.velocity.add(vec.clone()
             .multiplyScalar(player.speed)
             .multiplyScalar(activated['Sprint'] ? 2 : 1)
@@ -20,7 +21,10 @@ function walkDir(vec) {
     }
 }
 const keys = module.exports = {
-    'Pause': [true, () => states.paused = !states.paused],
+    'Pause': [true, () => {
+        document.cursorPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        states.paused = !states.paused
+    }],
     'Walk Left': [false, walkDir(new Vector3(-1,0,0))],
     'Walk Right': [false, walkDir(new Vector3(1,0,0))],
     'Walk Backward': [false, walkDir(new Vector3(0,0,1))],
@@ -31,6 +35,14 @@ const keys = module.exports = {
     }],
     'Sprint': [false, () => {}],
 }
+window.addEventListener('focusin', () => {
+    document.cursorPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    states.paused = false;
+});
+window.addEventListener('focusout', () => {
+    document.cursorPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    states.paused = true;
+});
 module.exports.descriptions = {
     'Pause': 'Pauses the game',
     'Walk Left': 'Walks to the left without moving the camera',

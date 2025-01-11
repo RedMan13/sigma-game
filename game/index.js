@@ -58,7 +58,12 @@ module.exports = function tick(time) {
     states.gui.clearRect(0,0, window.innerWidth, window.innerHeight);
     states.gui.scale(1,-1);
     states.gui.fillStyle = '#00FF00';
-    states.gui.fillText(`FPS: ${(1 / delta).toFixed(0)}; facing: X:${states.camera.rotation.x} Y:${states.camera.rotation.y} Z:${states.camera.rotation.z}; at: X:${states.camera.position.x} Y:${states.camera.position.y} Z:${states.camera.position.z}`, 0,0);
+    states.gui.font = 'monospace';
+    states.gui.fillText(`FPS: ${(1 / delta).toFixed(0)}; 
+Facing: X:${(states.camera.rotation.x / Math.PI * 180).toFixed(2)} Y:${(states.camera.rotation.y / Math.PI * 180).toFixed(2)} Z:${(states.camera.rotation.z / Math.PI * 180).toFixed(2)}; 
+At: X:${states.camera.position.x.toFixed(2)} Y:${states.camera.position.y.toFixed(2)} Z:${states.camera.position.z.toFixed(2)}
+Velocity: X:${states.velocity.x.toFixed(3)} Y:${states.velocity.y.toFixed(3)} Z:${states.velocity.z.toFixed(3)}
+Paused: ${states.paused}`, 0,-55);
     renderer.render(states.scene, states.camera);
     frame++;
 }

@@ -8,6 +8,7 @@ const stageBox = [
     new Vector3(Infinity, Infinity, Infinity)
 ]
 module.exports = function() {
+    if (states.paused) return;
     states.velocity.y += -(player.height / 80);
     states.velocity.x /= 1.5;
     states.velocity.z /= 1.5;
