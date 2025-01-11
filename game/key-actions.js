@@ -43,11 +43,10 @@ module.exports.descriptions = {
 module.exports.handle = function() {
     for (const name in keyBinds) {
         const down = document.getKey(Number(codeNames[keyBinds[name]]));
+        if (!down) { delete activated[name]; continue; }
         const [once, action] = keys[name];
         if (once && activated[name]) continue;
         if (down) activated[name] = true;
-        else delete activated[name];
-        if (!down) continue;
         action();
     }
 }

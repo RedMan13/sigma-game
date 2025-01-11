@@ -4,8 +4,8 @@ const { Vector3 } = require('three');
 const { willClamp } = require('./util/colisions');
 
 const stageBox = [
-    new Vector3(-1.5, 0, -1.5),
-    new Vector3(1.5, 1.5, 1.5)
+    new Vector3(-Infinity, 0, -Infinity),
+    new Vector3(Infinity, Infinity, Infinity)
 ]
 module.exports = function() {
     states.velocity.y += -(player.height / 80);

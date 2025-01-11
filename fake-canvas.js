@@ -1,15 +1,19 @@
 const { createCanvas, CanvasRenderingContext2D, Image: CanvasImage, Canvas } = require('canvas');
 const { Document } = require('glfw-raub');
+const gl = require('webgl-raub');
 
-const old = Canvas.prototype.getContext;
+const getContext = Canvas.prototype.getContext;
 Canvas.prototype.getContext = function(type, args) {
-    if (type === '2d') return old.call(this, type, args);
+    if (type === '2d') return getContext.call(this, type, args);
     return Document.webgl;
 }
 Canvas.prototype.style = {};
 Canvas.prototype.addEventListener = () => {};
 Canvas.prototype.removeEventListener = () => {};
 Canvas.prototype.dispatchEvent = () => {};
+global.HTMLCanvasElement = Canvas;
+global.HTMLImageElement = Document.Image;
+global.ImageBitmap = CanvasImage;
 Document.prototype.createElement = function(name) {
     name = name.toLowerCase();
     
@@ -42,7 +46,7 @@ Document.prototype.createElement = function(name) {
 
     return null;
 }
-const real = CanvasRenderingContext2D.prototype.drawImage;
+const drawImage = CanvasRenderingContext2D.prototype.drawImage;
 CanvasRenderingContext2D.prototype.drawImage = function(image, ...args) {
     if (image instanceof Document.Image) {
         const img = new CanvasImage();
@@ -51,5 +55,24 @@ CanvasRenderingContext2D.prototype.drawImage = function(image, ...args) {
         img.src = image.data.data;
         image = img;
     }
-    real.call(this, image, ...args);
+    drawImage.call(this, image, ...args);
 }
+function wrapLast(key) {
+    const old = gl[key];
+    gl[key] = function(...args) {
+        const image = args.at(-1);
+        if (image instanceof Canvas) {
+            const ctx = image.getContext('2d');
+            const img = new Image();
+            img.width = image.width;
+            img.height = image.height;
+            img._data = ctx.getImageData(0,0, image.width,image.height).data;
+            args[args.length -1] = img;
+        }
+        old.call(this, ...args);
+    }
+}
+wrapLast('texImage2D');
+wrapLast('texImage3D');
+wrapLast('texSubImage2D');
+wrapLast('texSubImage3D');

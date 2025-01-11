@@ -2,7 +2,7 @@ document.cursorPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 document.title = 'Simga';
 document.icon = './assets/icon.png';
 
-const { WebGLRenderer } = require('three');
+const { WebGLRenderer, Vector3 } = require('three');
 const renderer = new WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -35,6 +35,10 @@ module.exports = function tick(time) {
     }
     handle();
     physics();
+    states.guiSprite.position.copy(states.camera.position);
+    const toAdd = new Vector3(0, 0, -0.02);
+    toAdd.applyEuler(states.camera.rotation);
+    states.guiSprite.position.add(toAdd);
     renderer.render(states.scene, states.camera);
     frame++;
 }

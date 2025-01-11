@@ -1,5 +1,4 @@
-const { Vector3, Scene, PerspectiveCamera, AmbientLight } = require('three');
-const TextSprite = require('@seregpie/three.text-sprite');
+const { Vector3, Scene, PerspectiveCamera, AmbientLight, SpriteMaterial, Sprite, Texture } = require('three');
 const { GLTFLoader } = require('./cloned/GLTFLoader');
 
 const camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 1000);
@@ -15,22 +14,27 @@ loader.load('game/assets/bunker.gltf', bunkerData => {
     scene.add(bunker);
 });
 
-const sprite = new TextSprite({
-    alignment: 'left',
-    color: '#24ff00',
-    fontFamily: '"Times New Roman", Times, serif',
-    fontSize: 8,
-    fontStyle: 'italic',
-    text: [
-        'Twinkle, twinkle, little star,',
-        'How I wonder what you are!',
-        'Up above the world so high,',
-        'Like a diamond in the sky.',
-    ].join('\n'),
-});
-scene.add(sprite);
+const guiEl = document.createElement('canvas');
+/*
+guiEl.width = window.innerWidth;
+guiEl.height = window.innerHeight;
+document.addEventListener('resize', () => {
+    guiEl.width = window.innerWidth;
+    guiEl.height = window.innerHeight;
+});*/
+guiEl.width = 1;
+guiEl.height = 1;
+const gui = guiEl.getContext('2d');
+gui.fillStyle = '#0000FF';
+gui.fillRect(0,0, 1,1);
+const mat = new SpriteMaterial({ map: new Texture(guiEl) });
+const guiSprite = new Sprite(mat);
+mat.map.needsUpdate = true;
+scene.add(guiSprite);
 
 module.exports = {
+    guiSprite,
+    gui,
     camera,
     scene,
     velocity: new Vector3(0,0,0),
