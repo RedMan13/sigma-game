@@ -35,10 +35,30 @@ module.exports = function tick(time) {
     }
     handle();
     physics();
+
+    // never use onresize, its always a frame off of actual position
+    // update render viewport size
+	states.camera.aspect = window.innerWidth / window.innerHeight;
+	states.camera.updateProjectionMatrix();
+	tick.renderer.setViewport(0,0, window.innerWidth, window.innerHeight);
+
+    // update gui sprite size
+    states.gui.canvas.width = window.innerWidth / 2;
+    states.gui.canvas.height = window.innerHeight / 2;
+    states.guiSprite.material.map.needsUpdate = true;
+    states.camera.getViewSize(0.011, states.guiSprite.scale);
+    states.guiSprite.scale.z = 1;
+
     states.guiSprite.position.copy(states.camera.position);
     const toAdd = new Vector3(0, 0, -0.011);
     toAdd.applyEuler(states.camera.rotation);
     states.guiSprite.position.add(toAdd);
+
+    states.gui.resetTransform();
+    states.gui.clearRect(0,0, window.innerWidth, window.innerHeight);
+    states.gui.scale(1,-1);
+    states.gui.fillStyle = '#00FF00';
+    states.gui.fillText(`FPS: ${(1 / delta).toFixed(0)}; facing: X:${states.camera.rotation.x} Y:${states.camera.rotation.y} Z:${states.camera.rotation.z}; at: X:${states.camera.position.x} Y:${states.camera.position.y} Z:${states.camera.position.z}`, 0,0);
     renderer.render(states.scene, states.camera);
     frame++;
 }

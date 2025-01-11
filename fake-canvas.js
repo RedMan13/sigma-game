@@ -63,10 +63,10 @@ function wrapLast(key) {
         const image = args.at(-1);
         if (image instanceof Canvas) {
             const ctx = image.getContext('2d');
-            const img = new Image();
-            img.width = image.width;
-            img.height = image.height;
-            img._data = ctx.getImageData(0,0, image.width,image.height).data;
+            const img = Image.fromPixels(
+                image.width, image.height, 32, 
+                Buffer.from(ctx.getImageData(0,0, image.width,image.height).data)
+            );
             args[args.length -1] = img;
         }
         old.call(this, ...args);
