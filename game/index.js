@@ -36,7 +36,7 @@ module.exports = function tick(time) {
     handle();
     physics();
     states.guiSprite.position.copy(states.camera.position);
-    const toAdd = new Vector3(0, 0, -0.02);
+    const toAdd = new Vector3(0, 0, -0.011);
     toAdd.applyEuler(states.camera.rotation);
     states.guiSprite.position.add(toAdd);
     renderer.render(states.scene, states.camera);
