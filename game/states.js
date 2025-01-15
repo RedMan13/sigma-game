@@ -9,7 +9,7 @@ const ambientLight = new AmbientLight('white', 1);
 scene.add(ambientLight);
 
 const loader = new GLTFLoader();
-loader.load('game/assets/bunker.gltf', bunkerData => {
+loader.load('assets/bunker.gltf', bunkerData => {
     const bunker = bunkerData.scene;
     scene.add(bunker);
 });
