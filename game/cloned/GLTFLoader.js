@@ -3225,9 +3225,11 @@ class GLTFParser {
 
 		}
 
-		const promise = this.loadImageSource( sourceIndex, loader ).then( function ( texture ) {
+		const promise = this.loadImageSource( sourceIndex, loader ).then( 
+			/** @param {Texture} texture */
+			function ( texture ) {
 
-			texture.flipY = true;
+			texture.flipY = false;
 
 			texture.name = textureDef.name || sourceDef.name || '';
 
