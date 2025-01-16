@@ -12,7 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "3d-core-raub": "^4.3.0",
+    "3d-core-raub": "^5.1.1",
     "canvas": "^3.0.1",
     "glfw-raub": "^5.7.0",
     "mozjpeg": "^8.0.0",
