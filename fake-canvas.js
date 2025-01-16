@@ -1,6 +1,6 @@
 const { createCanvas, CanvasRenderingContext2D, Image: CanvasImage, Canvas } = require('canvas');
-const { Document } = require('glfw-raub');
-const gl = require('webgl-raub');
+const Document = Object.getPrototypeOf(document).constructor;
+const gl = Document.webgl;
 
 const getContext = Canvas.prototype.getContext;
 Canvas.prototype.getContext = function(type, args) {
