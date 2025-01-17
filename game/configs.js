@@ -1,4 +1,4 @@
-const playerHeight = 0.1;
+const playerHeight = 2;
 const resets = {
     mouse: {
         sensitivity: 1,
@@ -12,7 +12,8 @@ const resets = {
         set speed(newSpeed) { this._speed = newSpeed },
         _jumpPower: 0,
         get jumpPower() { return ((playerHeight / 6) * 1.5) + this._jumpPower },
-        set jumpPower(newJumpPower) { this._jumpPower = newJumpPower }
+        set jumpPower(newJumpPower) { this._jumpPower = newJumpPower },
+        get size() { return this.height / 8 }
     },
     keyBinds: {
         'Pause': 'Escape',
