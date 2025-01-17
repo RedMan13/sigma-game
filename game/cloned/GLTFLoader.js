@@ -3229,6 +3229,13 @@ class GLTFParser {
 			/** @param {Texture} texture */
 			function ( texture ) {
 
+			const can = document.createElement('canvas');
+			can.width = texture.image.width;
+			can.height = texture.image.height;
+			const ctx = can.getContext('2d');
+			ctx.drawImage(texture.image, 0, 0);
+			texture.image = can;
+
 			texture.flipY = false;
 
 			texture.name = textureDef.name || sourceDef.name || '';
