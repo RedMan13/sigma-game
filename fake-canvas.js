@@ -46,14 +46,92 @@ Document.prototype.createElement = function(name) {
 
     return null;
 }
+function fromPixels(width, height, bpp, pixels, to2DCanvas) {
+    const memSize = width * height * Math.floor(bpp / 8);
+    
+    // ====== MIMIC BMP
+    // see https://en.wikipedia.org/wiki/BMP_file_format
+    const dibSize = 40;
+    const headerSize = 14 + dibSize;
+    const bmpSize = headerSize + memSize;
+    const fakeBmp = Buffer.allocUnsafeSlow(bmpSize);
+    let pos = 0;
+    
+    // ---------- BMP header
+    fakeBmp.write('BM', pos, 2, 'ascii');
+    pos += 2;
+    
+    fakeBmp.writeUInt32LE(bmpSize, pos);
+    pos += 4;
+    
+    pos += 4; // skip unused
+    
+    fakeBmp.writeUInt32LE(headerSize, pos);
+    pos += 4;
+    
+    // ---------- DIB header
+    
+    fakeBmp.writeUInt32LE(dibSize, pos);
+    pos += 4;
+    
+    fakeBmp.writeInt32LE(width, pos);
+    pos += 4;
+    
+    fakeBmp.writeInt32LE(height, pos);
+    pos += 4;
+    
+    fakeBmp.writeUInt16LE(1, pos);
+    pos += 2;
+    
+    fakeBmp.writeUInt16LE(bpp, pos);
+    pos += 2;
+    
+    fakeBmp.writeUInt32LE(0, pos);
+    pos += 4;
+    
+    fakeBmp.writeUInt32LE(memSize, pos);
+    pos += 4;
+    
+    fakeBmp.writeUInt32LE(0x0ec4, pos);
+    pos += 4;
+    
+    fakeBmp.writeUInt32LE(0x0ec4, pos);
+    pos += 4;
+    
+    fakeBmp.writeUInt32LE(0, pos);
+    pos += 4;
+    
+    fakeBmp.writeUInt32LE(0, pos);
+    pos += 4;
+    
+    // ---------- PIXELS
+    pixels.copy(fakeBmp, pos);
+
+    // Implement codebase-specific load pixels
+    if (to2DCanvas) {
+        const img = new CanvasImage();
+        img.src = fakeBmp;
+        return img;
+    } else {
+        const img = new Image();
+        img._load(fakeBmp, true);
+        return img;
+    }
+}  
 const drawImage = CanvasRenderingContext2D.prototype.drawImage;
 CanvasRenderingContext2D.prototype.drawImage = function(image, ...args) {
     if (image instanceof Document.Image) {
-        const img = new CanvasImage();
-        img.width = image.width;
-        img.height = image.height;
-        img.src = image.data.data;
-        image = img;
+        if (image.src.startsWith('data:')) {
+            const img = new CanvasImage();
+            img.src = image.src;
+            image = img;
+        } else {
+            image = fromPixels(
+                image.width, image.height, 32, 
+                Buffer.from(image.data),
+                true
+            );
+        }
     }
     drawImage.call(this, image, ...args);
 }
@@ -63,9 +141,10 @@ function wrapLast(key) {
         const image = args.at(-1);
         if (image instanceof Canvas) {
             const ctx = image.getContext('2d');
-            const img = Image.fromPixels(
+            const img = fromPixels(
                 image.width, image.height, 32, 
-                Buffer.from(ctx.getImageData(0,0, image.width,image.height).data)
+                Buffer.from(ctx.getImageData(0,0, image.width,image.height).data),
+                false
             );
             args[args.length -1] = img;
         }
