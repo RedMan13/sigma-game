@@ -62,7 +62,6 @@ module.exports = function tick(time) {
 	tick.renderer.setViewport(0,0, window.innerWidth, window.innerHeight);
 
     // update gui sprite size
-    console.log(states.gui.canvas.height);
     states.guiSprite.material.map.needsUpdate = true;
     states.camera.getViewSize(0.011, states.guiSprite.scale);
     states.guiSprite.scale.y *= -1;

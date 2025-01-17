@@ -23,6 +23,7 @@ camera.getViewSize(0.011, guiSprite.scale);
 guiSprite.scale.y *= -1;
 guiSprite.scale.z = 1;
 mat.map = new Texture(guiEl);
+mat.map.flipY = false;
 mat.map.minFilter = NearestMipMapLinearFilter;
 mat.map.magFilter = NearestFilter;
 mat.map.needsUpdate = true;
