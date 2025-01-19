@@ -13,7 +13,7 @@ const glfw = require('glfw-raub');
 const { handle } = require('./key-actions');
 const { move, makeChecks } = require('./physics');
 
-const minGoodDelta = 1 / 60;
+const minGoodDelta = .017;
 const minGoodFPS = 60;
 const maxStatLen = 80;
 const fpsStatFrames = new Array(0).fill(0);
@@ -27,11 +27,9 @@ global.fps = NaN;
 global.delta = 1;
 module.exports = function tick(time) {
     delta = (time - lastTime) / 1000;
+    lastTime = time;
     if (isNaN(fps)) fps = 1 / delta;
     deltaFrames.push(delta);
-    deltaStatFrames.unshift(delta);
-    if (deltaStatFrames.length > maxStatLen)
-        deltaStatFrames.pop();
     if ((time - lastFrameFlush) > 1000) {
         fps = (1 / (deltaFrames.reduce((c,v) => c + (v || 0), 0) / deltaFrames.length)) || 0;
         deltaFrames = [];
@@ -40,7 +38,6 @@ module.exports = function tick(time) {
         if (fpsStatFrames.length > maxStatLen)
             fpsStatFrames.pop();
     }
-    lastTime = time;
     if (states.paused) {
         document.setInputMode(glfw.CURSOR, glfw.CURSOR_NORMAL);
     } else {
@@ -88,29 +85,33 @@ module.exports = function tick(time) {
     states.gui.translate(right, top); // make center of screen 0,0 and bottom positive y
     states.gui.fillStyle = '#1A1A1A1F';
     states.gui.fillRect(left,top,80,40);
-    // hard coded currently to correctly express what a good fps/delta is
-    const fpsScaler = minGoodFPS * 2; // (fpsStatFrames.reduce((c,v) => c + v, 0) / fpsStatFrames.length) * 2;
+    const fpsScaler = Math.max(minGoodFPS * 2, (fpsStatFrames.reduce((c,v) => c + v, 0) / fpsStatFrames.length) * 2);
     for (let i = maxStatLen, frame = fpsStatFrames.at(-1); i >= 0; frame = fpsStatFrames[--i]) {
         if (!frame) continue;
         const mag = frame / fpsScaler;
         const height = mag * 40;
-        states.gui.fillStyle = `hsl(${((mag * 2) * 122).toFixed(0)}, 100%, 25%)`;
+        states.gui.fillStyle = `hsl(${((Math.min(frame / minGoodFPS, 1) ** 2) * 122).toFixed(0)}, 100%, 25%)`;
         states.gui.fillRect(left + ((maxStatLen - i) * 1), top + (40 - height), 1, height);
     }
+    states.gui.fillStyle = '#00ff00';
+    states.gui.fillText(`FPS: ${fps.toFixed(0)}/${minGoodFPS}`, left, top + 50);
     states.gui.fillStyle = '#1A1A1A1F';
     states.gui.fillRect(right -80,top,80,40);
-    // hard coded currently to correctly express what a good fps/delta is
-    const deltaScaler = minGoodDelta * 2; // (deltaStatFrames.reduce((c,v) => v ? c + v : c, 0) / maxStatLen) * 2;
+    const deltaScaler = Math.max(minGoodDelta * 2, (deltaStatFrames.reduce((c,v) => v ? c + v : c, 0) / maxStatLen) * 2);
     for (let i = maxStatLen, frame = deltaStatFrames.at(-1); i >= 0; frame = deltaStatFrames[--i]) {
         if (!frame) continue;
         const mag = frame / deltaScaler;
         const height = mag * 40;
-        states.gui.fillStyle = `hsl(${(((1 - mag) * 2) * 122).toFixed(0)}, 100%, 25%)`;
+        states.gui.fillStyle = `hsl(${((1 - (frame / (minGoodDelta * 2))) * 122).toFixed(0)}, 100%, 25%)`;
         states.gui.fillRect((right -80) + ((maxStatLen - i) * 1), top + (40 - height), 1, height);
     }
+    states.gui.fillStyle = '#00ff00';
+    const str = `MS: ${delta * 1000}/${(minGoodDelta * 1000).toFixed(0)}`;
+    const dat = states.gui.measureText(str);
+    states.gui.fillText(str, right - dat.width, top + 50);
     states.gui.fillStyle = '#00FF00';
     states.gui.font = 'monospace';
-    states.gui.fillText(`FPS: ${fps.toFixed(0)}/${minGoodFPS}; 
+    states.gui.fillText(`
 Facing: X:${(states.camera.rotation.x / Math.PI * 180).toFixed(2)} Y:${(states.camera.rotation.y / Math.PI * 180).toFixed(2)} Z:${(states.camera.rotation.z / Math.PI * 180).toFixed(2)}; 
 At: X:${states.position.x.toFixed(2)} Y:${states.position.y.toFixed(2)} Z:${states.position.z.toFixed(2)}
 Velocity: X:${states.velocity.x.toFixed(3)} Y:${states.velocity.y.toFixed(3)} Z:${states.velocity.z.toFixed(3)}
@@ -118,6 +119,9 @@ Paused: ${states.paused}`, left,bottom -55);
     handle();
     makeChecks();
     renderer.render(states.scene, states.camera);
+    deltaStatFrames.unshift((Date.now() - lastTime) / 1000);
+    if (deltaStatFrames.length > maxStatLen)
+        deltaStatFrames.pop();
     frame++;
 }
 module.exports.renderer = renderer;
