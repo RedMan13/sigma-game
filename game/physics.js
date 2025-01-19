@@ -6,7 +6,7 @@ const { willClamp } = require('./util/colisions');
 const boxes = [
     // ['enclosure', new Vector3(-24, 0 -24), new Vector3(24, 24, 24)],
     // ['sphere', new Vector3(-6, 0, 0), 3],
-    new Box3(new Vector3(-2, 1 -1), new Vector3(2, 1, 1))
+    // new Box3(new Vector3(-2, 1 -1), new Vector3(2, 1, 1))
 ];
 
 module.exports.move = function move() {
@@ -20,7 +20,7 @@ module.exports.move = function move() {
     states.position.clamp(new Vector3(-Infinity, 0, -Infinity), new Vector3(Infinity, Infinity, Infinity));
     states.camera.position.set(
         states.position.x, 
-        states.position.y + player.height, 
+        states.position.y + (player.height * 0.8), 
         states.position.z
     );
 }
