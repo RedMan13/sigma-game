@@ -7,6 +7,7 @@ const activated = {};
 /** @param {Vector3} vec */
 function walkDir(vec) {
     return () => {
+        if (!states.freeCamera) return;
         if (states.paused) return;
         states.velocity.add(vec.clone()
             .multiplyScalar(player.speed)
@@ -30,6 +31,7 @@ const keys = module.exports = {
     'Walk Backward': [false, walkDir(new Vector3(0,0,1))],
     'Walk Forward': [false, walkDir(new Vector3(0,0,-1))],
     'Jump': [false, () => {
+        if (!states.freeCamera) return;
         if (states.velocity.y <= 0.001 && states.velocity.y >= -0.001) 
             states.velocity.y = player.jumpPower;
     }],

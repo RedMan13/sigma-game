@@ -6,8 +6,9 @@ const { WebGLRenderer, Vector3 } = require('three');
 const renderer = new WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-
 const states = require('./states');
+states.renderer = renderer;
+
 const { mouse, player } = require('./configs');
 const glfw = require('glfw-raub');
 const { handle } = require('./key-actions');
@@ -27,6 +28,9 @@ global.fps = NaN;
 global.delta = 1;
 module.exports = function tick(time) {
     delta = (time - lastTime) / 1000;
+    deltaStatFrames.unshift(delta);
+    if (deltaStatFrames.length > maxStatLen)
+        deltaStatFrames.pop();
     lastTime = time;
     if (isNaN(fps)) fps = 1 / delta;
     deltaFrames.push(delta);
@@ -38,7 +42,7 @@ module.exports = function tick(time) {
         if (fpsStatFrames.length > maxStatLen)
             fpsStatFrames.pop();
     }
-    if (states.paused) {
+    if (states.paused || !states.freeCamera) {
         document.setInputMode(glfw.CURSOR, glfw.CURSOR_NORMAL);
     } else {
         document.setInputMode(glfw.CURSOR, glfw.CURSOR_HIDDEN);
@@ -52,7 +56,7 @@ module.exports = function tick(time) {
         states.camera.rotation.z = 0;
         document.cursorPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     }
-    move();
+    if (states.freeCamera) move();
 
     // never use onresize, its always a frame off of actual position
     // update render viewport size
@@ -102,7 +106,7 @@ module.exports = function tick(time) {
         if (!frame) continue;
         const mag = frame / deltaScaler;
         const height = mag * 40;
-        states.gui.fillStyle = `hsl(${((1 - (frame / (minGoodDelta * 2))) * 122).toFixed(0)}, 100%, 25%)`;
+        states.gui.fillStyle = `hsl(${((Math.min((1 / frame) / minGoodFPS, 1) ** 2) * 122).toFixed(0)}, 100%, 25%)`;
         states.gui.fillRect((right -80) + ((maxStatLen - i) * 1), top + (40 - height), 1, height);
     }
     states.gui.fillStyle = '#00ff00';
@@ -117,11 +121,7 @@ At: X:${states.position.x.toFixed(2)} Y:${states.position.y.toFixed(2)} Z:${stat
 Velocity: X:${states.velocity.x.toFixed(3)} Y:${states.velocity.y.toFixed(3)} Z:${states.velocity.z.toFixed(3)}
 Paused: ${states.paused}`, left,bottom -55);
     handle();
-    makeChecks();
     renderer.render(states.scene, states.camera);
-    deltaStatFrames.unshift((Date.now() - lastTime) / 1000);
-    if (deltaStatFrames.length > maxStatLen)
-        deltaStatFrames.pop();
     frame++;
 }
 module.exports.renderer = renderer;

@@ -17,6 +17,7 @@
     "glfw-raub": "^5.7.0",
     "mozjpeg": "^8.0.0",
     "three": "^0.172.0",
+    "three-shader-baker": "^1.0.8",
     "webgl-raub": "^4.2.0"
   }
 }
